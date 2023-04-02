@@ -1,2 +1,1 @@
-# Code
- 
+Na het maken van iedere opdracht is de sourcefile gekopieerd en in deze folder geplaatst. De bestanden zijn per week gesorteerd en benoemd naar de bijbehorende opdracht.
