@@ -1,0 +1,46 @@
+#define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+void progressLoop();
+
+ISR( INT1_vect ) {
+	progressLoop();
+}
+
+ISR( INT2_vect ) {
+	progressLoop();
+}
+
+int main( void ) {
+	DDRA = 0xFF;
+	PORTA = 1;
+
+	EICRA = 0b00111100;
+	EIMSK = 0b00000110;
+	
+	sei();
+
+	while (1) {	}
+
+	return 1;
+}
+
+int array[] = {
+	0b1,
+	0b10,
+	0b100,
+	0b1000,
+	0b10000,
+	0b100000,
+	0b1000000,
+	0b10000000,
+};
+int index = 0;
+
+void progressLoop() {
+	index = (index + 1) % 8;
+	PORTA = array[index];
+}

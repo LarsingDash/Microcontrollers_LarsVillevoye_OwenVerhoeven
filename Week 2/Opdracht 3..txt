@@ -1,0 +1,84 @@
+# define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdbool.h>
+#include <avr/interrupt.h>
+
+void increase();
+void reset();
+
+bool is4Pressed = false;
+bool is5Pressed = false;
+
+ISR(INT4_vect) {
+	is4Pressed = !is4Pressed;
+	
+	if (is4Pressed)
+	{
+		if (is5Pressed)
+		{
+			reset();
+		} 
+		else
+		{
+			increase();
+		}
+	}
+}
+
+ISR(INT5_vect) {
+	is5Pressed = !is5Pressed;
+	
+	if (is5Pressed)
+	{
+		if (is4Pressed)
+		{
+			reset();
+		} 
+		else
+		{
+			increase();
+		}
+	}
+}
+
+int numbers[] = {
+	0b00111111, //0
+	0b00000110, //1
+	0b01011011, //2
+	0b01001111, //3
+	0b01100110, //4
+	0b01101101, //5
+	0b01111101, //6
+	0b00000111, //7
+	0b01111111, //8
+	0b01101111, //9
+};
+int index = 0;
+
+int main(void)
+{
+	DDRB = 0xFF;
+	
+	EICRB = 0b00000101;
+	EIMSK = 0b00110000;
+	sei();
+	
+	PORTB = numbers[index];
+	
+	while (1) {
+	}
+}
+
+void increase() {
+	index = ((index +1) % 10);
+	
+	PORTB = numbers[index];
+}
+
+void reset() {
+	index = 0;
+	
+	PORTB = numbers[index];
+}

@@ -1,0 +1,35 @@
+# define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+ISR( TIMER1_COMPA_vect )
+{
+	PORTD = 0x80;
+	_delay_ms(15);
+	PORTD = 0x00;
+}
+
+void timer_init( void )
+{
+	OCR1A = 31250 / 25; //25 + 15 ms
+	TCCR1A = 0b00000000;
+	TCCR1B = 0b00001100;
+	TIMSK |= (1<<4);
+}
+
+int main( void )
+{
+	DDRD = 0xFF;
+	timer_init();
+	
+	sei();
+	
+	while (1)
+	{
+		_delay_ms(50);
+	}
+	
+	return 0;
+}

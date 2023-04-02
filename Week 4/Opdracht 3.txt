@@ -1,0 +1,32 @@
+#define F_CPU 8e6
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+
+void adcInit( void )
+{
+    ADMUX = 0b01100011;
+    ADCSRA = 0b11100110;
+}
+
+ISR(INT4_vect) {
+	ADCSRA ^= 0b00100000;
+}
+
+int main( void )
+{
+    DDRF = 0x00;
+    DDRA = 0xFF;
+    adcInit();
+	
+	EICRB = 0b00000011;
+	EIMSK = 0b00010000;
+	sei();
+
+    while (1)
+    {
+        PORTA = ADCH;
+        _delay_ms(100);
+    }
+}

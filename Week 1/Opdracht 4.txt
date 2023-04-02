@@ -1,0 +1,40 @@
+#define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdbool.h>
+
+int main(void)
+{
+	//Setup
+	DDRD = 0xFF;
+	unsigned char index = 0b00000000;
+	bool isSwitching = false;
+	
+	while (1)
+	{
+		if (!isSwitching)
+		{
+			//Hold current led for 500 ms, then clear leds
+			_delay_ms(500);
+			PORTD = 0;
+		} else {
+			//Wait 50 ms before switching to the next led
+			_delay_ms(50);
+			PORTD = index;
+			
+			//Prepare next index
+			//Wrap back to 0 at 1
+			if (index == 0b10000000) index = 0b00000000;
+			
+			//Shift index left by 1
+			index = (index << 1);
+			
+			//Fix for when index is 0 because 0 << 1 still equals 0
+			if (index == 0) index = 1;
+		}
+		
+		isSwitching = !isSwitching;
+	}
+	return 1;
+}

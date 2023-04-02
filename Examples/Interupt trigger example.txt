@@ -1,0 +1,41 @@
+#define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <stdbool.h>
+
+bool hasPressed = false;
+
+ISR(INT4_vect) {
+	PORTA = 0xFF;
+}
+
+ISR(INT5_vect) {
+	PORTA = 0x00;
+}
+
+ISR(INT6_vect) {
+	PORTA = 0x0F;
+	hasPressed = true;
+}
+
+int main(void)
+{
+	DDRA = 0xFF;
+	
+	//Datasheet 90
+	EICRB = 0b00111111;
+	EIMSK = 0b01110000;
+	sei();
+	
+	while (1) {
+		if (hasPressed)
+		{
+			cli();
+		}
+	}
+}
+
+//BottomLeft jumper is up
+//Jumper on the right of the board down with all the pins up

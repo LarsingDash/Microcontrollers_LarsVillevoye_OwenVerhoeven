@@ -1,0 +1,77 @@
+#define F_CPU 8000000UL
+
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdbool.h>
+
+//Define functions
+void stateAction(int i);
+int makeDecision(int i);
+void exitState(int i);
+void initState(int i);
+
+//Setup variables
+bool lastInputs[] = {false, false, false};
+int currentState = 4;
+
+int main(void)
+{
+	//Setup ports
+	DDRD = 0x00;
+	DDRA = 0xFF;
+	
+	while (1) {
+		initState(currentState);
+
+		//Read inputs
+		bool currentInputs[] = {PIND == 0b00100000, PIND == 0b01000000, PIND == 0b10000000};
+		
+		//Check if any of the inputs have changed
+		for (int i = 0; i < 3; i ++ )
+		{
+			//Perform action on change
+			if (currentInputs[i] == true && currentInputs[i] != lastInputs[i]) stateAction(i);
+
+			//Update last inputs
+			lastInputs[i] = currentInputs[i];
+		}
+	}
+
+	return 1;
+}
+
+void stateAction(int inputID) {
+	//Switch to current state -> set nextState according to input
+	int nextState = makeDecision(inputID);
+	
+	if (nextState != 0)
+	{
+		exitState(currentState);
+		currentState = nextState;
+		initState(currentState);
+	}
+}
+
+int makeDecision(int inputID) {
+	//0 == no path - 4 == Start - 5 == End
+	int graph[5][3] =
+	{
+		{2, 0, 4},
+		{3, 1, 4},
+		{5, 5, 4},
+		{2, 1, 0},
+		{0, 0, 4},
+	};
+	
+	return graph[currentState - 1][inputID];
+}
+
+void exitState(int state) {
+	//Clear leds
+	PORTA = 0;
+}
+
+void initState(int state) {
+	//Enable led corresponding to given state
+	PORTA |= 1 << (state - 1);
+}
